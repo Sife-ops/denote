@@ -1,9 +1,11 @@
 import { Context } from "./context.ts";
-import { commandSchema } from "./validation/schema.ts";
+import { parse } from "./main-deps.ts";
+import { parseCommandSchema } from "./validation/schema.ts";
+
 import { compile } from "./command/compile.ts";
 import { new_ } from "./command/new.ts";
-import { parse } from "./main-deps.ts";
 import { search } from "./command/search.ts";
+import { help } from "./command/help.ts";
 
 const { HOME } = Deno.env.toObject();
 
@@ -25,7 +27,7 @@ args = {
   command: args._[0],
 };
 
-const parsedCommandSchema = commandSchema.parse(args);
+const parsedCommandSchema = parseCommandSchema(args);
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -33,7 +35,8 @@ const parsedCommandSchema = commandSchema.parse(args);
 
 const ctx: Context = {
   denoteHome: `${HOME}/.denote`,
-  denoteProject: parsedCommandSchema.p || "denote",
+  denoteProject:
+    parsedCommandSchema.p || parsedCommandSchema.project || "denote",
 };
 
 switch (parsedCommandSchema.command) {
@@ -57,6 +60,11 @@ switch (parsedCommandSchema.command) {
   //   case "open": {
   //     break;
   //   }
+
+  case "help": {
+    help();
+    break;
+  }
 
   default: {
     break;
