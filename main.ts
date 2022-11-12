@@ -28,8 +28,19 @@ switch (command) {
     });
 
     const decoded = new TextDecoder().decode(await process.output());
-    const fileNames = decoded.split("\n").slice(0, -1);
-    // todo: check empty?
+    const paths = decoded.split("\n").slice(0, -1);
+    if (paths.length < 1) break;
+
+    paths.sort((a, b) => {
+      // todo: this regex sucks
+      const re = /(?<=\/)(((?!\/).)*)$/;
+      const a_: string[] = a.match(re) || [];
+      const b_: string[] = b.match(re) || [];
+      if (a_.length < 1 || b_.length < 1) {
+        throw new Error("Sort failed.");
+      }
+      return a_[0] > b_[0] ? 1 : -1;
+    });
 
     const projectFile = await Deno.open(`${denoteHome}/${denoteProject}.md`, {
       read: true,
@@ -38,24 +49,29 @@ switch (command) {
       create: true,
     });
 
-    // todo: sort files by timestamp
-    for (const fileName of fileNames) {
+    for (const path of paths) {
       try {
-        const bytes = await Deno.readFile(fileName);
+        const bytes = await Deno.readFile(path);
         await projectFile.write(bytes);
         await projectFile.write(new TextEncoder().encode("\n"));
       } catch {
         continue;
       }
       // todo: move to trash?
-      await Deno.remove(fileName);
+      await Deno.remove(path);
     }
     projectFile.close();
 
     break;
   }
 
-  default:
+  case "grep": {
+    console.log("lol");
+    break;
+  }
+
+  default: {
     console.error("Unrecognized command.");
     break;
+  }
 }
