@@ -32,14 +32,10 @@ switch (command) {
     if (paths.length < 1) break;
 
     paths.sort((a, b) => {
-      // todo: this regex sucks
-      const re = /(?<=\/)(((?!\/).)*)$/;
-      const a_: string[] = a.match(re) || [];
-      const b_: string[] = b.match(re) || [];
-      if (a_.length < 1 || b_.length < 1) {
-        throw new Error("Sort failed.");
-      }
-      return a_[0] > b_[0] ? 1 : -1;
+      const re = /^.*[\\\/]/;
+      const basenameA = a.replace(re, "");
+      const basenameB = b.replace(re, "");
+      return basenameA > basenameB ? 1 : -1;
     });
 
     const projectFile = await Deno.open(`${denoteHome}/${denoteProject}.md`, {
