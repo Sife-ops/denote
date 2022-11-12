@@ -21,6 +21,7 @@ switch (command) {
   }
 
   case "compile": {
+    // todo: ignore large folders (eg. node_modules)
     const process = Deno.run({
       cmd: `find . -name ${denoteProject}-* -type f`.split(" "),
       //   cmd: ["find", ".", "-name", "denote-*", "-type", "f"],
@@ -48,6 +49,7 @@ switch (command) {
     for (const path of paths) {
       try {
         const bytes = await Deno.readFile(path);
+        // todo: append to head
         await projectFile.write(bytes);
         await projectFile.write(new TextEncoder().encode("\n"));
       } catch {
