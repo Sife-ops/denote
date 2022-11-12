@@ -63,8 +63,16 @@ switch (command) {
     break;
   }
 
-  case "grep": {
-    console.log("lol");
+  case "search": {
+    const exp = options._[1];
+    const process = Deno.run({
+      // todo: can't glob whole dir
+      // todo: option to use rg
+      cmd: `grep -C2 -n ${exp} ${denoteHome}/${denoteProject}.md`.split(" "),
+      stdout: "piped",
+    });
+    const decoded = new TextDecoder().decode(await process.output());
+    console.log(decoded);
     break;
   }
 
