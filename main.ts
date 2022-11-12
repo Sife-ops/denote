@@ -1,91 +1,64 @@
-import { format, parse } from "./main-deps.ts";
+import { Context } from "./context.ts";
+import { commandSchema } from "./validation/schema.ts";
+import { compile } from "./command/compile.ts";
+import { new_ } from "./command/new.ts";
+import { parse } from "./main-deps.ts";
+import { search } from "./command/search.ts";
 
 const { HOME } = Deno.env.toObject();
 
-const options = parse(Deno.args, {
+let args = parse(Deno.args, {
   string: ["project", "p"],
 });
-const command = options._[0];
 
-const denoteHome = `${HOME}/.denote`;
-const denoteProject = options.project || options.p || "denote";
+let positionals = {};
+args._.forEach((v, i) => {
+  positionals = {
+    ...positionals,
+    [i]: v,
+  };
+});
 
-switch (command) {
-  case "new": {
-    const timestamp = format(new Date(), "yyyy-MM-ddTHH:mm:ss");
-    await Deno.writeTextFile(
-      `./${denoteProject}-${timestamp}.md`,
-      `# ${timestamp}\n\n## New Note`
-    );
+args = {
+  ...args,
+  positionals,
+  command: args._[0],
+};
+
+const parsedCommandSchema = commandSchema.parse(args);
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+const ctx: Context = {
+  denoteHome: `${HOME}/.denote`,
+  denoteProject: parsedCommandSchema.p || "denote",
+};
+
+switch (parsedCommandSchema.command) {
+  case "new":
+    new_(ctx);
     break;
-  }
 
-  case "compile": {
-    // todo: ignore large folders (eg. node_modules)
-    const process = Deno.run({
-      cmd: `find . -name ${denoteProject}-* -type f`.split(" "),
-      //   cmd: ["find", ".", "-name", "denote-*", "-type", "f"],
-      stdout: "piped",
-    });
-
-    const decoded = new TextDecoder().decode(await process.output());
-    const paths = decoded.split("\n").slice(0, -1);
-    if (paths.length < 1) break;
-
-    paths.sort((a, b) => {
-      const re = /^.*[\\\/]/;
-      const basenameA = a.replace(re, "");
-      const basenameB = b.replace(re, "");
-      return basenameA > basenameB ? 1 : -1;
-    });
-
-    const projectFile = await Deno.open(`${denoteHome}/${denoteProject}.md`, {
-      read: true,
-      write: true,
-      append: true,
-      create: true,
-    });
-
-    for (const path of paths) {
-      try {
-        const bytes = await Deno.readFile(path);
-        // todo: append to head
-        await projectFile.write(bytes);
-        await projectFile.write(new TextEncoder().encode("\n"));
-      } catch {
-        continue;
-      }
-      // todo: move to trash?
-      await Deno.remove(path);
-    }
-    projectFile.close();
-
+  case "compile":
+    compile(ctx);
     break;
-  }
 
   case "search": {
-    const exp = options._[1];
-    const process = Deno.run({
-      // todo: can't glob whole dir
-      // todo: option to use rg
-      cmd: `grep -C2 -n ${exp} ${denoteHome}/${denoteProject}.md`.split(" "),
-      stdout: "piped",
-    });
-    const decoded = new TextDecoder().decode(await process.output());
-    console.log(decoded);
+    search(ctx, parsedCommandSchema.positionals[1]);
     break;
   }
 
-  case "show": {
-    break;
-  }
+  //   case "show": {
+  //     break;
+  //   }
 
-  case "open": {
-    break;
-  }
+  //   case "open": {
+  //     break;
+  //   }
 
   default: {
-    console.error("Unrecognized command.");
     break;
   }
 }
