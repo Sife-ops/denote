@@ -76,6 +76,14 @@ switch (command) {
     break;
   }
 
+  case "show": {
+    break;
+  }
+
+  case "open": {
+    break;
+  }
+
   default: {
     console.error("Unrecognized command.");
     break;
