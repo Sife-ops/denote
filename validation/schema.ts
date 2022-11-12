@@ -26,11 +26,9 @@ export const commandSchema = z.discriminatedUnion("command", [
   z
     .object({
       command: z.literal("search"),
-      positionals: z
-        .object({
-          [1]: z.string(),
-        })
-        .describe("hello"),
+      positionals: z.object({
+        [1]: z.string(),
+      }),
     })
     .extend(optionSchema),
 ]);
@@ -38,8 +36,10 @@ export const commandSchema = z.discriminatedUnion("command", [
 export const parseCommandSchema = (schema: unknown) => {
   try {
     return commandSchema.parse(schema);
-  } catch {
+  } catch (e_) {
+    // const e = e_ as ZodError;
+    // console.log(e.issues)
     help();
-    throw new Error("Command validation failure.");
+    Deno.exit();
   }
 };
