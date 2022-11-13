@@ -9,31 +9,11 @@ const optionSchema = {
 };
 
 export const commandSchema = z.discriminatedUnion("command", [
-  z
-    .object({
-      command: z.literal("help"),
-    })
-    .extend(optionSchema),
-  z
-    .object({
-      command: z.literal("new"),
-    })
-    .extend(optionSchema),
-  z
-    .object({
-      command: z.literal("compile"),
-    })
-    .extend(optionSchema),
-  z
-    .object({
-      command: z.literal("show"),
-    })
-    .extend(optionSchema),
-  z
-    .object({
-      command: z.literal("open"),
-    })
-    .extend(optionSchema),
+  z.object({ command: z.literal("help") }).extend(optionSchema),
+  z.object({ command: z.literal("new") }).extend(optionSchema),
+  z.object({ command: z.literal("compile") }).extend(optionSchema),
+  z.object({ command: z.literal("show") }).extend(optionSchema),
+  z.object({ command: z.literal("open") }).extend(optionSchema),
   z
     .object({
       command: z.literal("search"),
