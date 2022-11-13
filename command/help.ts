@@ -5,7 +5,7 @@ export const help = () => {
 const helpSring = `Usage: denote <command> [options]
 
 command             description
--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 new                 Create a new note
 compile             Compile notes
 search <pattern>    Search notes

@@ -12,6 +12,8 @@ deno install --allow-all main.ts
 New note:
 ```bash
 denote new
+denote new | xargs nvim             # open in editor
+denote new -p foo | xargs -o vim    # open in potato editor (eg. nano)
 ```
 
 Compile notes:
@@ -19,7 +21,18 @@ Compile notes:
 denote compile
 ```
 
-Options:
+## Commands
+```
+command             description
+--------------------------------------------------------------------------------
+new                 Create a new note
+compile             Compile notes
+search <pattern>    Search notes
+show                Show notes
+open                Open notes in editor
+```
+
+## Options
 ```
 option              type                    description         default
 -------------------------------------------------------------------------------
