@@ -10,7 +10,10 @@ export const compile = async (ctx: Context) => {
 
   const decoded = new TextDecoder().decode(await process.output());
   const paths = decoded.split("\n").slice(0, -1);
-  if (paths.length < 1) return;
+  if (paths.length < 1) {
+    console.log("Didn't find any notes.");
+    return;
+  }
 
   paths.sort((a, b) => {
     const re = /^.*[\\\/]/;
