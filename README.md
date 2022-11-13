@@ -1,6 +1,6 @@
 # Denote
 
-Take notes to compile to a centralized location later.
+Take notes and compile them to a centralized location later.
 
 ## Usage
 
@@ -17,4 +17,13 @@ denote new
 Compile notes:
 ```bash
 denote compile
+```
+
+Options:
+```
+option              type                    description         default
+-------------------------------------------------------------------------------
+-p, --project       string                  Project name        denote
+--denoteHome        string                  Denote home         ${HOME}/.denote
+--compileMode       append OR prepend       Compile mode        prepend
 ```
