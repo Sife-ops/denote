@@ -34,9 +34,10 @@ const parsedCommandSchema = parseCommandSchema(args);
 ////////////////////////////////////////////////////////////////////////////////
 
 const ctx: Context = {
-  denoteHome: `${HOME}/.denote`,
+  denoteHome: parsedCommandSchema.denoteHome || `${HOME}/.denote`,
   denoteProject:
     parsedCommandSchema.p || parsedCommandSchema.project || "denote",
+  compileMode: parsedCommandSchema.compileMode || "prepend",
 };
 
 switch (parsedCommandSchema.command) {

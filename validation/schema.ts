@@ -1,8 +1,9 @@
-import { ZodError } from "https://deno.land/x/zod@v3.14.4/ZodError.ts";
 import { help } from "../command/help.ts";
 import { z } from "./schema-deps.ts";
 
 const optionSchema = {
+  compileMode: z.union([z.literal("append"), z.literal("prepend")]).optional(),
+  denoteHome: z.string().optional(),
   p: z.string().optional(),
   project: z.string().optional(),
 };

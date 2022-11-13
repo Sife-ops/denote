@@ -15,34 +15,75 @@ export const compile = async (ctx: Context) => {
     return;
   }
 
-  paths.sort((a, b) => {
+  paths.sort((a: string, b: string) => {
     const re = /^.*[\\\/]/;
     const basenameA = a.replace(re, "");
     const basenameB = b.replace(re, "");
     return basenameA > basenameB ? 1 : -1;
   });
 
-  const projectFile = await Deno.open(
-    `${ctx.denoteHome}/${ctx.denoteProject}.md`,
-    {
-      read: true,
-      write: true,
-      append: true,
-      create: true,
-    }
-  );
+  const openOptions: Deno.OpenOptions = {
+    read: true,
+    write: true,
+    append: true,
+    create: true,
+  };
 
-  for (const path of paths) {
-    try {
-      const bytes = await Deno.readFile(path);
-      // todo: append to head
-      await projectFile.write(bytes);
-      await projectFile.write(new TextEncoder().encode("\n"));
-    } catch {
-      continue;
+  switch (ctx.compileMode) {
+    case "append": {
+      const projectFile = await Deno.open(
+        `${ctx.denoteHome}/${ctx.denoteProject}.md`,
+        openOptions
+      );
+
+      for (const path of paths) {
+        try {
+          const bytes = await Deno.readFile(path);
+          await projectFile.write(bytes);
+          await projectFile.write(new TextEncoder().encode("\n"));
+        } catch {
+          continue;
+        }
+        // todo: move to trash?
+        await Deno.remove(path);
+      }
+      projectFile.close();
+
+      break;
     }
-    // todo: move to trash?
-    await Deno.remove(path);
+
+    case "prepend": {
+      for (const path of paths) {
+        const file = await Deno.open(path, openOptions);
+        try {
+          const bytes = await Deno.readFile(
+            `${ctx.denoteHome}/${ctx.denoteProject}.md`
+          );
+          await file.write(new TextEncoder().encode("\n\n\n"));
+          await file.write(bytes);
+          file.close();
+          await Deno.remove(`${ctx.denoteHome}/${ctx.denoteProject}.md`);
+        } catch {
+          file.close();
+          console.log(`Creating ${ctx.denoteProject} project.`);
+        }
+
+        const projectFile = await Deno.open(
+          `${ctx.denoteHome}/${ctx.denoteProject}.md`,
+          { write: true, createNew: true }
+        );
+
+        const bytes = await Deno.readFile(path);
+        await projectFile.write(bytes);
+        projectFile.close();
+
+        await Deno.remove(path);
+      }
+
+      break;
+    }
+
+    default:
+      break;
   }
-  projectFile.close();
 };
