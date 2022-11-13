@@ -5,6 +5,7 @@ import { parseCommandSchema } from "./validation/schema.ts";
 import { compile } from "./command/compile.ts";
 import { help } from "./command/help.ts";
 import { new_ } from "./command/new.ts";
+import { open } from "./command/open.ts";
 import { search } from "./command/search.ts";
 import { show } from "./command/show.ts";
 
@@ -60,9 +61,10 @@ switch (parsedCommandSchema.command) {
     break;
   }
 
-  //   case "open": {
-  //     break;
-  //   }
+  case "open": {
+    open(ctx);
+    break;
+  }
 
   case "help": {
     help();
