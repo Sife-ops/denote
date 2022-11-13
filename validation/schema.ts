@@ -26,6 +26,11 @@ export const commandSchema = z.discriminatedUnion("command", [
     .extend(optionSchema),
   z
     .object({
+      command: z.literal("show"),
+    })
+    .extend(optionSchema),
+  z
+    .object({
       command: z.literal("search"),
       positionals: z.object({
         [1]: z.string(),

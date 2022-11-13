@@ -3,9 +3,10 @@ import { parse } from "./main-deps.ts";
 import { parseCommandSchema } from "./validation/schema.ts";
 
 import { compile } from "./command/compile.ts";
+import { help } from "./command/help.ts";
 import { new_ } from "./command/new.ts";
 import { search } from "./command/search.ts";
-import { help } from "./command/help.ts";
+import { show } from "./command/show.ts";
 
 const { HOME } = Deno.env.toObject();
 
@@ -54,9 +55,10 @@ switch (parsedCommandSchema.command) {
     break;
   }
 
-  //   case "show": {
-  //     break;
-  //   }
+  case "show": {
+    show(ctx);
+    break;
+  }
 
   //   case "open": {
   //     break;
