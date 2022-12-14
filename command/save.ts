@@ -1,5 +1,5 @@
 import { Arguments } from "../main-deps.ts";
-import { wrapCommand } from "./common.ts";
+import { prependFile, wrapCommand } from "./common.ts";
 
 export const save = wrapCommand((defaults) => ({
   command: "save",
@@ -11,9 +11,6 @@ export const save = wrapCommand((defaults) => ({
     const exclusions = defaults.excludeDirs.reduce<string>((a, c) => {
       return a + ` -not -path ${c}`;
     }, "");
-
-    // console.log(`find . ${exclusions} -name ${argv.project}-* -type f`);
-    // return;
 
     const process = Deno.run({
       cmd: `find . ${exclusions} -name ${argv.project}-* -type f`.split(" "),
@@ -35,33 +32,7 @@ export const save = wrapCommand((defaults) => ({
     });
 
     for (const path of paths) {
-      const file = await Deno.open(path, {
-        read: true,
-        write: true,
-        append: true,
-        create: true,
-      });
-      try {
-        const bytes = await Deno.readFile(`${argv.home}/${argv.project}.md`);
-        await file.write(new TextEncoder().encode("\n\n\n"));
-        await file.write(bytes);
-        file.close();
-        await Deno.remove(`${argv.home}/${argv.project}.md`);
-      } catch {
-        file.close();
-        console.log(`Creating ${argv.project} project.`);
-      }
-
-      const projectFile = await Deno.open(`${argv.home}/${argv.project}.md`, {
-        write: true,
-        createNew: true,
-      });
-
-      const bytes = await Deno.readFile(path);
-      await projectFile.write(bytes);
-      projectFile.close();
-
-      await Deno.remove(path);
+      await prependFile(path, argv);
     }
   },
 }));

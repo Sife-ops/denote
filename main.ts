@@ -2,21 +2,11 @@
 
 import { Arguments, yargs } from "./main-deps.ts";
 import { save } from "./command/save.ts";
+import { default_ } from "./command/default.ts";
 import { wrapCommand, defaults } from "./command/common.ts";
 
 yargs(Deno.args)
-  .command(
-    ...wrapCommand(() => ({
-      command: "$0 [project]",
-      description: "new note",
-      builder: (yargs) => {
-        return yargs;
-      },
-      handler: (argv) => {
-        console.info(argv);
-      },
-    }))
-  )
+  .command(...default_)
   .command(
     ...wrapCommand(() => ({
       command: "file [project]",
