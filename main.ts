@@ -1,77 +1,46 @@
-import { Context } from "./context.ts";
-import { parse } from "./main-deps.ts";
-import { parseCommandSchema } from "./validation/schema.ts";
+// https://github.com/yargs/yargs/blob/main/docs/typescript.md
 
-import { compile } from "./command/compile.ts";
-import { help } from "./command/help.ts";
-import { new_ } from "./command/new.ts";
-import { open } from "./command/open.ts";
-import { search } from "./command/search.ts";
-import { show } from "./command/show.ts";
+import { wrapCommand, defaults } from "./command/common.ts";
+import { save } from "./command/save.ts";
+import { Arguments, yargs } from "./main-deps.ts";
 
-const { HOME } = Deno.env.toObject();
-
-let args = parse(Deno.args, {
-  string: ["project", "p"],
-});
-
-let positionals = {};
-args._.forEach((v, i) => {
-  positionals = {
-    ...positionals,
-    [i]: v,
-  };
-});
-
-args = {
-  ...args,
-  positionals,
-  command: args._[0],
-};
-
-const parsedCommandSchema = parseCommandSchema(args);
-
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
-const ctx: Context = {
-  denoteHome: parsedCommandSchema.denoteHome || `${HOME}/.denote`,
-  denoteProject:
-    parsedCommandSchema.p || parsedCommandSchema.project || "denote",
-  compileMode: parsedCommandSchema.compileMode || "prepend",
-};
-
-switch (parsedCommandSchema.command) {
-  case "new":
-    new_(ctx);
-    break;
-
-  case "compile":
-    compile(ctx);
-    break;
-
-  case "search": {
-    search(ctx, parsedCommandSchema.positionals[1]);
-    break;
-  }
-
-  case "show": {
-    show(ctx);
-    break;
-  }
-
-  case "open": {
-    open(ctx);
-    break;
-  }
-
-  case "help": {
-    help();
-    break;
-  }
-
-  default: {
-    break;
-  }
-}
+yargs(Deno.args)
+  .command(
+    ...wrapCommand({
+      command: "$0 [project]",
+      description: "new note",
+      builder: (yargs) => {
+        return yargs;
+      },
+      handler: (argv) => {
+        console.info(argv);
+      },
+    })
+  )
+  .command(
+    ...wrapCommand({
+      command: "file [project]",
+      description: "new file",
+      builder: (yargs) => {
+        return yargs;
+      },
+      handler: (argv: Arguments) => {
+        console.info(argv);
+      },
+    })
+  )
+  .command(...save)
+  .positional("project", {
+    describe: "project name",
+    type: "string",
+    default: defaults.defaultProjectName,
+  })
+  .option("home", {
+    alias: "H",
+    type: "string",
+    description: "denote home",
+    default: defaults.denoteHome,
+  })
+  .strictCommands()
+  .demandCommand(1)
+  .parse();
