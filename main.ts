@@ -1,12 +1,12 @@
 // https://github.com/yargs/yargs/blob/main/docs/typescript.md
 
-import { wrapCommand, defaults } from "./command/common.ts";
-import { save } from "./command/save.ts";
 import { Arguments, yargs } from "./main-deps.ts";
+import { save } from "./command/save.ts";
+import { wrapCommand, defaults } from "./command/common.ts";
 
 yargs(Deno.args)
   .command(
-    ...wrapCommand({
+    ...wrapCommand(() => ({
       command: "$0 [project]",
       description: "new note",
       builder: (yargs) => {
@@ -15,10 +15,10 @@ yargs(Deno.args)
       handler: (argv) => {
         console.info(argv);
       },
-    })
+    }))
   )
   .command(
-    ...wrapCommand({
+    ...wrapCommand(() => ({
       command: "file [project]",
       description: "new file",
       builder: (yargs) => {
@@ -27,7 +27,7 @@ yargs(Deno.args)
       handler: (argv: Arguments) => {
         console.info(argv);
       },
-    })
+    }))
   )
   .command(...save)
   .positional("project", {

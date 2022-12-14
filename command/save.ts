@@ -1,7 +1,7 @@
 import { Arguments } from "../main-deps.ts";
-import { wrapCommand, defaults } from "./common.ts";
+import { wrapCommand } from "./common.ts";
 
-export const save = wrapCommand({
+export const save = wrapCommand((defaults) => ({
   command: "save",
   description: "save files",
   builder: (yargs) => {
@@ -64,4 +64,4 @@ export const save = wrapCommand({
       await Deno.remove(path);
     }
   },
-});
+}));
