@@ -2,8 +2,8 @@ import { Arguments } from "../main-deps.ts";
 
 const { HOME, EDITOR } = Deno.env.toObject();
 
-// todo: rename to ctx
-interface Defaults {
+// todo: prefix
+interface Context {
   denoteHome: string;
   defaultProjectName: string;
   excludeDirs: string[];
@@ -11,23 +11,24 @@ interface Defaults {
 }
 
 // todo: merge with config file
-export const defaults: Defaults = {
-  denoteHome: `${HOME}/.denote`,
+export const context: Context = {
   defaultProjectName: "denote",
-  excludeDirs: ["*/node_modules/*"],
+  denoteHome: `${HOME}/.denote`,
   editor: EDITOR,
+  excludeDirs: ["*/node_modules/*"],
 };
 
 export const wrapCommand = (
-  cb: (defaults: Defaults) => {
+  cb: (context: Context) => {
     command: string;
     description: string;
     builder: (yargs: any) => any;
     handler: (argv: Arguments) => void;
   }
 ) => {
-  const result = cb(defaults);
-  return [result.command, result.description, result.builder, result.handler];
+  const result = cb(context);
+  // @ts-ignore: todo
+  return Object.keys(result).map((key) => result[key]);
 };
 
 export const prependFile = async (path: string, argv: Arguments) => {

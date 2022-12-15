@@ -1,7 +1,7 @@
 import { format } from "../main-deps.ts";
 import { wrapCommand, prependFile } from "./common.ts";
 
-export const default_ = wrapCommand((defaults) => ({
+export const default_ = wrapCommand((ctx) => ({
   command: "$0 [project]",
   description: "new note",
   builder: (yargs) => {
@@ -16,12 +16,11 @@ export const default_ = wrapCommand((defaults) => ({
     let path = new TextDecoder().decode(await process1.output());
     path = path.replace("\n", "");
 
-    // todo: abstraction
     const timestamp = format(new Date(), "yyyy-MM-ddTHH:mm:ss");
     await Deno.writeTextFile(path, `# ${timestamp}\n\n`);
 
     const process2 = Deno.run({
-      cmd: [defaults.editor, path],
+      cmd: [ctx.editor, path],
       stdout: "inherit",
     });
 
