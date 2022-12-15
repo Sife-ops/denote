@@ -9,6 +9,7 @@ yargs(Deno.args)
   // .command(...file)
   // .command(...save)
   .positional("project", {
+    alias: "p",
     describe: "project name",
     type: "string",
     default: context.defaultProjectName,

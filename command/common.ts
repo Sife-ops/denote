@@ -32,6 +32,7 @@ export const wrapCommand = (
 };
 
 export const prependFile = async (path: string, argv: Arguments) => {
+  console.log(argv)
   const file = await Deno.open(path, {
     read: true,
     write: true,
